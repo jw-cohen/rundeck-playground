@@ -1,6 +1,7 @@
 # Rundeck playground
 
-### Note: gradle build of bootstrapped plugins may not work depending on your gradle version. After creating the bootstrapped plugin, I change "compile" -> "implementation" and "testCompile" to "testImplementation."
+### Note: 
+Gradle build of bootstrapped plugins may not work depending on your gradle version. After creating the bootstrapped plugin, I change "compile" -> "implementation" and "testCompile" to "testImplementation."
 
 ## Overview
 
