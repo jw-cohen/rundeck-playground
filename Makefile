@@ -12,7 +12,7 @@ NETWORK_NAME := $(CONTAINER_PREFIX)default
 NUM_WEB := 2
 
 # Command to call the Rundeck client from outside of the container
-RD := tools/rd-0.1.0-SNAPSHOT/bin/rd
+RD := tools/bin/rd
 
 # RD env vars
 export RD_URL ?= http://127.0.0.1:4440
@@ -62,7 +62,7 @@ $(RD_MAKE_STATE_DIR)/%.scriptplugin: $(PLUGIN_OUTPUT_DIR)/%.zip $(RD)
 		echo "Version already exists for $<"; \
 		exit 1; \
 	else \
-		$(RD) plugins upload -f "$<" &&	echo "$$NEW_VERSION" > $@ && rm -f $(RD_PLUGIN_INSTALLED_STATE); \
+		$(RD) plugins upload -r private -f "$<" &&	echo "$$NEW_VERSION" > $@ && rm -f $(RD_PLUGIN_INSTALLED_STATE); \
 	fi
 
 # Creates the Rundeck project and sets its config properties
@@ -96,18 +96,20 @@ $(RD_MAKE_STATE_DIR)/%.key: $(RD_KEYS_DIR)/% $(RD)
 keys: $(RD_KEYS_STATES)
 
 # Tools
-PLUGIN_BOOTSTRAP := tools/rundeck-plugin-bootstrap-0.1.0-SNAPSHOT/bin/rundeck-plugin-bootstrap
+PLUGIN_BOOTSTRAP := tools/tools/rundeck-plugin-bootstrap-0.1.0-SNAPSHOT/bin/rundeck-plugin-bootstrap
 tools: $(RD) $(PLUGIN_BOOTSTRAP)
+# tools: $(RD)
 
 $(PLUGIN_BOOTSTRAP):
 	@echo "====[rundeck-plugin-bootstrap] Installing"
 	@docker-compose up --build rundeck-plugin-bootstrap
-	@docker cp rundeck-playground_rundeck-plugin-bootstrap_1:/root/tools/ .
+	@docker cp rundeck-playground_rundeck-plugin-bootstrap_1:/root/tools/ ./tools
 
 $(RD):
 	@echo "====[rd] Installing"
 	@docker-compose up --build rundeck-cli
-	@docker cp rundeck-playground_rundeck-cli_1:/root/tools/ .
+	@docker cp rundeck-playground_rundeck-cli_1:/root/tools/bin ./tools
+	@docker cp rundeck-playground_rundeck-cli_1:/root/tools/lib ./tools
 
 env:
 	@echo 'export RD_URL="$(RD_URL)";'
@@ -180,5 +182,5 @@ $(RD_MAKE_STATE_DIR)/%.javaplugin: $(PLUGINS_SRC_DIR)/%/gradlew $(PLUGINS_SRC_DI
 		echo "====[$* Java plugin] ERROR: Version $$NEW_VERSION already exists. Update plugin version in $(PLUGINS_SRC_DIR)/$*/build.gradle"; \
 		exit 1; \
 	else \
-		$(PWD)/$(RD) plugins upload -f "$$JARFILE" && echo "$$NEW_VERSION" > $(PWD)/$@ && rm -f $(PWD)/$(RD_PLUGIN_INSTALLED_STATE); \
+		$(PWD)/$(RD) plugins upload -r private -f "$$JARFILE" && echo "$$NEW_VERSION" > $(PWD)/$@ && rm -f $(PWD)/$(RD_PLUGIN_INSTALLED_STATE); \
 	fi
