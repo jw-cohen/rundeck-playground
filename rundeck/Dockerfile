@@ -5,3 +5,5 @@ RUN chmod 0700 /home/rundeck/.ssh \
     && chmod 0600 /home/rundeck/.ssh/* \
     && chmod 0644 /home/rundeck/.ssh/*.pub
 COPY --chown=rundeck:rundeck nodes.yaml /home/rundeck/
+
+COPY --chown=rundeck:root remco /etc/remco
